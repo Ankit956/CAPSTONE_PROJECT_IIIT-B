@@ -1,0 +1,45 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_SERVER = "ubuntu@<aws-app-public-ip>"
+        AZURE_SERVER = "azureuser_app@<azure-app-public-ip>"
+        SSH_KEY = "/var/lib/jenkins/.ssh/id_rsa"
+        GIT_REPO = "https://github.com/Ankit956/CAPSTONE_PROJECT_IIIT-B.git"
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', credentialsId: 'git-ssh-key', url: "${GIT_REPO}"
+            }
+        }
+
+        stage('Deploy to AWS') {
+            steps {
+                sh """
+                scp -i ${SSH_KEY} Task-3/index-aws.html ${AWS_SERVER}:/var/www/html/index-aws.html
+                ssh -i ${SSH_KEY} ${AWS_SERVER} 'sudo systemctl restart nginx'
+                """
+            }
+        }
+
+        stage('Deploy to Azure') {
+            steps {
+                sh """
+                scp -i ${SSH_KEY} Task-3/index-azure.html ${AWS_SERVER}:/var/www/html/index-azure.html
+                ssh -i ${SSH_KEY} ${AZURE_SERVER} 'sudo systemctl restart nginx'
+                """
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Deployment Successful!'
+        }
+        failure {
+            echo 'Deployment Failed!'
+        }
+    }
+}
