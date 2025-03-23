@@ -1,4 +1,4 @@
-## Create access key and secret key first and then run the .tf file
+## Create access key and secret key first and then run the .tf file.
 provider "aws" {
     region = "us-east-1"
     access_key = "xxxxxxxxxxxxxx"
